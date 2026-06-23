@@ -5,6 +5,14 @@ let grassBlades = [];
 let bees = [];
 
 let bearImage;
+let birdImage;
+let birds = [];
+
+let nextBirdSpawn;
+let birdWalkSpeed = 4;
+
+const BIRD_FRAME_WIDTH = 740 / 3;   // 246.67
+const BIRD_FRAME_HEIGHT = 592 / 3;  // 197.33
 let bearX;
 let bearY;
 // Score
@@ -38,6 +46,7 @@ const FRAME_WIDTH = 80; // 320 / 4
 const FRAME_HEIGHT = 48;
 
 function preload() {
+  birdImage = loadImage("assets/images/bird.jpg");
   beehive = loadImage("assets/images/beehive.png");
   beeImage = loadImage("assets/images/happy_bee.png");
   bearImage = loadImage("assets/images/bear.png");
@@ -50,6 +59,7 @@ function setup() {
   bearX = -100; // Start off-screen
   bearY = height * 0.75 - 20;
   nextBearSpawn = millis() + random(10000, 20000);
+  nextBirdSpawn = millis() + 30000; // first bird after 30 sec
 
   // Create grass blades
   for (let x = 0; x < width; x += 5) {
@@ -122,6 +132,34 @@ function draw() {
     lastAttack: 0
 
   });
+  if (millis() > nextBirdSpawn) {
+
+  let direction = random() < 0.5 ? 1 : -1;
+
+  birds.push({
+
+    x: direction === 1 ? -100 : width + 100,
+    y: random(150, height * 0.5),
+
+    direction: direction,
+    facing: direction,
+
+    leaving: false,
+
+    frame: 0,
+    frameTimer: 0,
+
+    lastAttack: 0
+
+  });
+
+  let level = floor((millis() - 30000) / 30000);
+
+  nextBirdSpawn = millis() + random(
+    max(3000, 12000 - level * 1000),
+    max(6000, 18000 - level * 1000)
+  );
+}
 
   nextBearSpawn = millis() + random(minSpawnTime, maxSpawnTime);
 
@@ -149,8 +187,10 @@ drawHiveHealthBar();
   // Bear
   drawBears();
 
+  drawBirds();
+
   // Beehive
-  image(beehive, width / 2, height * 0.68, 150, 150);
+image(beehive, width / 2, height * 0.71, 150, 150);
 
   drawMiniHiveHealthBar();
   // Bees
@@ -207,7 +247,7 @@ function drawGrassTexture() {
 
 function drawBees() {
   let hiveX = width / 2;
-  let hiveY = height * 0.68;
+ let hiveY = height * 0.71;
 
   for (let bee of bees) {
     // Move toward target
@@ -325,6 +365,105 @@ function drawBears() {
 
 }
 
+function drawBirds() {
+
+  let hiveX = width / 2;
+
+  for (let i = birds.length - 1; i >= 0; i--) {
+
+    let bird = birds[i];
+
+    // Animate sprite
+    bird.frameTimer++;
+
+    if (bird.frameTimer > 6) {
+
+      bird.frame = (bird.frame + 1) % 9;
+      bird.frameTimer = 0;
+
+    }
+
+    // Move toward hive
+    if (!bird.leaving) {
+
+      if (bird.direction === 1) {
+
+        if (bird.x < hiveX)
+          bird.x += birdWalkSpeed;
+
+      } else {
+
+        if (bird.x > hiveX)
+          bird.x -= birdWalkSpeed;
+
+      }
+
+    }
+
+    // Leaving
+    else {
+
+      if (bird.direction === 1)
+        bird.x -= birdWalkSpeed * 1.5;
+      else
+        bird.x += birdWalkSpeed * 1.5;
+
+    }
+
+    // Damage hive
+    let distanceToHive = abs(bird.x - hiveX);
+
+    if (!bird.leaving && distanceToHive < 80) {
+
+      if (millis() - bird.lastAttack > 2000) {
+
+        hiveHealth -= 5;
+        hiveHealth = max(0, hiveHealth);
+
+        bird.lastAttack = millis();
+
+      }
+
+    }
+
+    // Draw bird
+    push();
+
+    translate(bird.x, bird.y);
+
+    if (bird.facing === -1)
+      scale(-1, 1);
+
+    let row = floor(bird.frame / 3);
+    let col = bird.frame % 3;
+
+    image(
+
+      birdImage,
+
+      0,
+      0,
+      120,
+      120,
+
+      col * BIRD_FRAME_WIDTH,
+      row * BIRD_FRAME_HEIGHT,
+
+      BIRD_FRAME_WIDTH,
+      BIRD_FRAME_HEIGHT
+
+    );
+
+    pop();
+
+    // Remove offscreen
+    if (bird.x < -200 || bird.x > width + 200)
+      birds.splice(i, 1);
+
+  }
+
+}
+
 function mousePressed() {
 
   for (let bear of bears) {
@@ -340,6 +479,24 @@ function mousePressed() {
 
       bear.leaving = true;
       bear.facing *= -1;
+
+      for (let bird of birds) {
+
+  if (
+
+    mouseX > bird.x - 60 &&
+    mouseX < bird.x + 60 &&
+    mouseY > bird.y - 60 &&
+    mouseY < bird.y + 60
+
+  ) {
+
+    bird.leaving = true;
+    bird.facing *= -1;
+
+  }
+
+}
 
     }
 
@@ -391,7 +548,7 @@ function drawHiveHealthBar() {
 function drawMiniHiveHealthBar() {
 
   let hiveX = width / 2;
-  let hiveY = height * 0.68;
+  let hiveY = height * 0.71;
 
   let barWidth = 80;
   let barHeight = 10;
