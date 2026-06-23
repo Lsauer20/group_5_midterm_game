@@ -16,6 +16,12 @@ let nextBearSpawn;
 let bearActive = false;
 let bearDirection = 1;
 let bearFacing = 1;
+// Hive health
+let hiveHealth = 100;
+const MAX_HIVE_HEALTH = 100;
+
+// Bear attacks
+let lastBearAttack = 0;
 
 const FRAME_WIDTH = 80; // 320 / 4
 const FRAME_HEIGHT = 48;
@@ -94,6 +100,8 @@ function draw() {
   // Sky
   background(135, 206, 235);
 
+drawHiveHealthBar();
+
   // Clouds
   drawClouds();
 
@@ -111,6 +119,7 @@ function draw() {
   // Beehive
   image(beehive, width / 2, height * 0.68, 150, 150);
 
+  drawMiniHiveHealthBar();
   // Bees
   drawBees();
 }
@@ -235,6 +244,24 @@ function drawBear() {
     }
   }
 
+  // Attack hive when close enough
+if (!bearLeaving) {
+
+  let distanceToHive = abs(bearX - hiveX);
+
+  if (distanceToHive <= 120) {
+
+    // Attack every 1.5 seconds
+    if (millis() - lastBearAttack > 1500) {
+
+      hiveHealth -= 5;
+      hiveHealth = max(hiveHealth, 0);
+
+      lastBearAttack = millis();
+    }
+  }
+}
+
   push();
 
   translate(bearX, bearY);
@@ -276,4 +303,74 @@ function mousePressed() {
     // Turn around
     bearFacing *= -1;
   }
+}
+
+function drawHiveHealthBar() {
+
+  let barWidth = 300;
+  let barHeight = 25;
+
+  let x = width / 2 - barWidth / 2;
+  let y = 20;
+
+  // Background
+  fill(80);
+  noStroke();
+  rect(x, y, barWidth, barHeight);
+
+  // Health
+  fill(0, 200, 0);
+  rect(
+    x,
+    y,
+    barWidth * (hiveHealth / MAX_HIVE_HEALTH),
+    barHeight
+  );
+
+  // Border
+  noFill();
+  stroke(0);
+  strokeWeight(2);
+  rect(x, y, barWidth, barHeight);
+
+  // Text
+  noStroke();
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(16);
+  text(
+    "Beehive Health: " + hiveHealth + " / " + MAX_HIVE_HEALTH,
+    width / 2,
+    y + barHeight / 2
+  );
+}
+
+
+function drawMiniHiveHealthBar() {
+
+  let hiveX = width / 2;
+  let hiveY = height * 0.68;
+
+  let barWidth = 80;
+  let barHeight = 10;
+
+  // Background
+  fill(80);
+  rect(hiveX - barWidth / 2, hiveY - 95, barWidth, barHeight);
+
+  // Health
+  fill(0, 200, 0);
+  rect(
+    hiveX - barWidth / 2,
+    hiveY - 95,
+    barWidth * (hiveHealth / MAX_HIVE_HEALTH),
+    barHeight
+  );
+
+  // Border
+  noFill();
+  stroke(0);
+  rect(hiveX - barWidth / 2, hiveY - 95, barWidth, barHeight);
+
+  noStroke();
 }
