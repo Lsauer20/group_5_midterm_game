@@ -11,8 +11,11 @@ let birds = [];
 let nextBirdSpawn;
 let birdWalkSpeed = 4;
 
-const BIRD_FRAME_WIDTH = 740 / 3;   // 246.67
-const BIRD_FRAME_HEIGHT = 592 / 3;  // 197.33
+const BIRD_COLS = 8;
+const BIRD_ROWS = 3;
+
+const BIRD_FRAME_WIDTH = 1602.666777 / 8;
+const BIRD_FRAME_HEIGHT = 616 / 3; // 197.33
 let bearX;
 let bearY;
 // Score
@@ -46,7 +49,7 @@ const FRAME_WIDTH = 80; // 320 / 4
 const FRAME_HEIGHT = 48;
 
 function preload() {
-  birdImage = loadImage("assets/images/bird.jpg");
+  birdImage = loadImage("assets/images/bird.png");
   beehive = loadImage("assets/images/beehive.png");
   beeImage = loadImage("assets/images/happy_bee.png");
   bearImage = loadImage("assets/images/bear.png");
@@ -112,12 +115,11 @@ function updateDifficulty() {
 function draw() {
 
   updateDifficulty();
-  if (millis() > nextBearSpawn) {
+if (millis() > nextBearSpawn) {
 
   let direction = random() < 0.5 ? 1 : -1;
 
   bears.push({
-
     x: direction === 1 ? -100 : width + 100,
     y: height * 0.79 - FRAME_HEIGHT,
 
@@ -130,19 +132,22 @@ function draw() {
     frameTimer: 0,
 
     lastAttack: 0
-
   });
-  if (millis() > nextBirdSpawn) {
 
-  let direction = random() < 0.5 ? 1 : -1;
+  nextBearSpawn = millis() + random(minSpawnTime, maxSpawnTime);
+}
+
+if (millis() > nextBirdSpawn) {
 
   birds.push({
+    x: random(0, width),
+    y: -100,
 
-    x: direction === 1 ? -100 : width + 100,
-    y: random(150, height * 0.5),
+    targetX: width / 2 + random(-120,120),
+    targetY: height * 0.73,
 
-    direction: direction,
-    facing: direction,
+    direction: random() < 0.5 ? 1 : -1,
+    facing: random() < 0.5 ? 1 : -1,
 
     leaving: false,
 
@@ -150,7 +155,6 @@ function draw() {
     frameTimer: 0,
 
     lastAttack: 0
-
   });
 
   let level = floor((millis() - 30000) / 30000);
@@ -159,10 +163,6 @@ function draw() {
     max(3000, 12000 - level * 1000),
     max(6000, 18000 - level * 1000)
   );
-}
-
-  nextBearSpawn = millis() + random(minSpawnTime, maxSpawnTime);
-
 }
 
   // Sky
@@ -378,53 +378,67 @@ function drawBirds() {
 
     if (bird.frameTimer > 6) {
 
-      bird.frame = (bird.frame + 1) % 9;
+     bird.frame = (bird.frame + 1) % 24;
       bird.frameTimer = 0;
 
     }
 
     // Move toward hive
-    if (!bird.leaving) {
+if (!bird.leaving) {
 
-      if (bird.direction === 1) {
+  let dx = bird.targetX - bird.x;
+  let dy = bird.targetY - bird.y;
 
-        if (bird.x < hiveX)
-          bird.x += birdWalkSpeed;
+  let distance = dist(
+    bird.x,
+    bird.y,
+    bird.targetX,
+    bird.targetY
+  );
 
-      } else {
+  if (distance > 5) {
 
-        if (bird.x > hiveX)
-          bird.x -= birdWalkSpeed;
+    bird.x += dx/distance * birdWalkSpeed;
+    bird.y += dy/distance * birdWalkSpeed;
 
-      }
+  }
 
-    }
+}
 
     // Leaving
     else {
 
-      if (bird.direction === 1)
-        bird.x -= birdWalkSpeed * 1.5;
-      else
-        bird.x += birdWalkSpeed * 1.5;
+      bird.y -= birdWalkSpeed*1.5;
+
+if (bird.facing === 1)
+  bird.x += birdWalkSpeed;
+else
+  bird.x -= birdWalkSpeed;
 
     }
 
     // Damage hive
-    let distanceToHive = abs(bird.x - hiveX);
+  let hiveY = height*0.73;
 
-    if (!bird.leaving && distanceToHive < 80) {
+let distanceToHive = dist(
+  bird.x,
+  bird.y,
+  hiveX,
+  hiveY
+);
 
-      if (millis() - bird.lastAttack > 2000) {
+if (!bird.leaving && distanceToHive < 100) {
 
-        hiveHealth -= 5;
-        hiveHealth = max(0, hiveHealth);
+  if (millis() - bird.lastAttack > 2000) {
 
-        bird.lastAttack = millis();
+    hiveHealth -= 5;
+    hiveHealth = max(0, hiveHealth);
 
-      }
+    bird.lastAttack = millis();
 
-    }
+  }
+
+}
 
     // Draw bird
     push();
@@ -434,8 +448,8 @@ function drawBirds() {
     if (bird.facing === -1)
       scale(-1, 1);
 
-    let row = floor(bird.frame / 3);
-    let col = bird.frame % 3;
+let row = floor(bird.frame / 8);
+let col = bird.frame % 8;
 
     image(
 
@@ -466,40 +480,36 @@ function drawBirds() {
 
 function mousePressed() {
 
+  // Bears
   for (let bear of bears) {
 
     if (
-
-      mouseX > bear.x - FRAME_WIDTH/2 &&
-      mouseX < bear.x + FRAME_WIDTH/2 &&
-      mouseY > bear.y - FRAME_HEIGHT/2 &&
-      mouseY < bear.y + FRAME_HEIGHT/2
-
+      mouseX > bear.x - FRAME_WIDTH / 2 &&
+      mouseX < bear.x + FRAME_WIDTH / 2 &&
+      mouseY > bear.y - FRAME_HEIGHT / 2 &&
+      mouseY < bear.y + FRAME_HEIGHT / 2
     ) {
 
       bear.leaving = true;
       bear.facing *= -1;
 
-      for (let bird of birds) {
-
-  if (
-
-    mouseX > bird.x - 60 &&
-    mouseX < bird.x + 60 &&
-    mouseY > bird.y - 60 &&
-    mouseY < bird.y + 60
-
-  ) {
-
-    bird.leaving = true;
-    bird.facing *= -1;
-
+    }
   }
 
-}
+  // Birds
+  for (let bird of birds) {
+
+    if (
+      mouseX > bird.x - 60 &&
+      mouseX < bird.x + 60 &&
+      mouseY > bird.y - 60 &&
+      mouseY < bird.y + 60
+    ) {
+
+      bird.leaving = true;
+      bird.facing *= -1;
 
     }
-
   }
 
 }
