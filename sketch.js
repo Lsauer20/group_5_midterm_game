@@ -110,15 +110,16 @@ function updateDifficulty() {
 
 scoreLevel = floor(score / 5000);
 if (scoreLevel > previousLevel) {
-  fasterTimer = 180; // 3 seconds
+  fasterTimer = 120; // 3 seconds
   previousLevel = scoreLevel;
 }
 
 bearWalkSpeed = 1.5 + scoreLevel * 0.4;
 birdWalkSpeed = 4 + scoreLevel * 0.5;
 
-bearSpawnDelay = max(700, 6000 - scoreLevel * 700);
-birdSpawnDelay = max(900, 7500 - scoreLevel * 800);
+// Every 5000 score halves the delay again
+bearSpawnDelay = max(100, 3000 / pow(2, scoreLevel));
+birdSpawnDelay = max(150, 4000 / pow(2, scoreLevel));
 
 }
 
@@ -161,7 +162,7 @@ if (score >= 200 && millis() > nextBearSpawn) {
   });
 
 nextBearSpawn = millis() + random(
-bearSpawnDelay * 0.7,
+bearSpawnDelay * 0.5,
 bearSpawnDelay
 );
 }
@@ -189,7 +190,7 @@ facing: (random(0,width) < width/2) ? 1 : -1,
   let level = floor((millis() - 30000) / 30000);
 
 nextBirdSpawn = millis() + random(
-birdSpawnDelay * 0.7,
+birdSpawnDelay * 0.5,
 birdSpawnDelay
 );
 }
@@ -221,10 +222,12 @@ drawHiveHealthBar();
   // Beehive
 image(beehive, width / 2, height * 0.71, 150, 150);
 
-  drawMiniHiveHealthBar();
-  // Bees
-  
-  if (fasterTimer > 0) {
+ drawMiniHiveHealthBar();
+
+// Bees
+drawBees();
+
+if (fasterTimer > 0) {
 
   textAlign(CENTER, CENTER);
 
@@ -232,8 +235,12 @@ image(beehive, width / 2, height * 0.71, 150, 150);
   stroke(0);
   strokeWeight(4);
 
-  textSize(70);
-  text("FASTER", width/2, height/2);
+textSize(90);
+fill(255,0,0);
+
+text("FASTER!", width/2, height/2);
+textSize(40);
+text("Enemies are speeding up", width/2, height/2 + 80);
 
   fasterTimer--;
 
@@ -488,16 +495,17 @@ if (!bird.leaving && distanceToHive < 100) {
 // Always face hive while attacking
 if (!bird.leaving) {
 
-  if (bird.x < hiveX)
-    bird.facing = 1;     // sprite faces right naturally
+  // Face toward hive
+  if (bird.targetX > bird.x)
+    bird.facing = 1;
   else
-    bird.facing = -1;    // flip when coming from right
+    bird.facing = -1;
 
 }
 else {
 
-// face away when leaving
-  if (bird.x < width/2)
+  // Face away from hive
+  if (bird.targetX > bird.x)
     bird.facing = -1;
   else
     bird.facing = 1;
