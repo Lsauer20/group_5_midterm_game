@@ -12,6 +12,8 @@ let nextBirdSpawn;
 let birdWalkSpeed = 4;
 
 let gameOver = false;
+let fasterTimer = 0;
+let previousLevel = 0;
 let scoreLevel = 0;
 
 let bearSpawnDelay = 12000;
@@ -107,12 +109,16 @@ function setup() {
 function updateDifficulty() {
 
 scoreLevel = floor(score / 5000);
+if (scoreLevel > previousLevel) {
+  fasterTimer = 180; // 3 seconds
+  previousLevel = scoreLevel;
+}
 
 bearWalkSpeed = 1.5 + scoreLevel * 0.4;
 birdWalkSpeed = 4 + scoreLevel * 0.5;
 
-bearSpawnDelay = max(1500, 12000 - scoreLevel * 1000);
-birdSpawnDelay = max(2000, 15000 - scoreLevel * 1200);
+bearSpawnDelay = max(700, 6000 - scoreLevel * 700);
+birdSpawnDelay = max(900, 7500 - scoreLevel * 800);
 
 }
 
@@ -135,7 +141,7 @@ return;
 }
 
 updateDifficulty();
-if (score >= 500 && millis() > nextBearSpawn) {
+if (score >= 200 && millis() > nextBearSpawn) {
 
   let direction = random() < 0.5 ? 1 : -1;
 
@@ -160,7 +166,7 @@ bearSpawnDelay
 );
 }
 
-if (score >= 1000 && millis() > nextBirdSpawn) {
+if (score >= 600 && millis() > nextBirdSpawn) {
 
   birds.push({
     x: random(0, width),
@@ -217,7 +223,21 @@ image(beehive, width / 2, height * 0.71, 150, 150);
 
   drawMiniHiveHealthBar();
   // Bees
-  drawBees();
+  
+  if (fasterTimer > 0) {
+
+  textAlign(CENTER, CENTER);
+
+  fill(255,0,0);
+  stroke(0);
+  strokeWeight(4);
+
+  textSize(70);
+  text("FASTER", width/2, height/2);
+
+  fasterTimer--;
+
+}
   if (hiveHealth <= 0) {
 gameOver = true;
 }
@@ -465,7 +485,24 @@ if (!bird.leaving && distanceToHive < 100) {
   }
 
 }
+// Always face hive while attacking
+if (!bird.leaving) {
 
+  if (bird.x < hiveX)
+    bird.facing = 1;     // sprite faces right naturally
+  else
+    bird.facing = -1;    // flip when coming from right
+
+}
+else {
+
+// face away when leaving
+  if (bird.x < width/2)
+    bird.facing = -1;
+  else
+    bird.facing = 1;
+
+}
     // Draw bird
     push();
 
