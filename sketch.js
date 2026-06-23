@@ -701,6 +701,12 @@ birds = [];
 
 gameOver = false;
 
+// Reset difficulty system
+scoreLevel = 0;
+previousLevel = 0;
+fasterTimer = 0;
+
+// Reset spawn timers
 nextBearSpawn = millis() + 5000;
 nextBirdSpawn = millis() + 8000;
 
