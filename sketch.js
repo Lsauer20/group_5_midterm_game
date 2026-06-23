@@ -11,6 +11,12 @@ let birds = [];
 let nextBirdSpawn;
 let birdWalkSpeed = 4;
 
+let gameOver = false;
+let scoreLevel = 0;
+
+let bearSpawnDelay = 12000;
+let birdSpawnDelay = 15000;
+
 const BIRD_COLS = 8;
 const BIRD_ROWS = 3;
 
@@ -100,22 +106,36 @@ function setup() {
 
 function updateDifficulty() {
 
-  // Increase difficulty every 30 seconds
-  let level = floor(millis() / 30000);
+scoreLevel = floor(score / 5000);
 
-  // Bears move faster
-  bearWalkSpeed = 1.5 + level * 0.3;
+bearWalkSpeed = 1.5 + scoreLevel * 0.4;
+birdWalkSpeed = 4 + scoreLevel * 0.5;
 
-  // Bears spawn more often
-  minSpawnTime = max(2000, 7000 - level * 500);
-  maxSpawnTime = max(5000, 15000 - level * 1000);
+bearSpawnDelay = max(1500, 12000 - scoreLevel * 1000);
+birdSpawnDelay = max(2000, 15000 - scoreLevel * 1200);
 
 }
 
 function draw() {
 
-  updateDifficulty();
-if (millis() > nextBearSpawn) {
+if (gameOver) {
+
+background(0);
+
+fill(255);
+textAlign(CENTER, CENTER);
+
+textSize(60);
+text("GAME OVER", width/2, height/2);
+
+textSize(30);
+text("Press SPACE to restart", width/2, height/2 + 80);
+
+return;
+}
+
+updateDifficulty();
+if (score >= 500 && millis() > nextBearSpawn) {
 
   let direction = random() < 0.5 ? 1 : -1;
 
@@ -134,10 +154,13 @@ if (millis() > nextBearSpawn) {
     lastAttack: 0
   });
 
-  nextBearSpawn = millis() + random(minSpawnTime, maxSpawnTime);
+nextBearSpawn = millis() + random(
+bearSpawnDelay * 0.7,
+bearSpawnDelay
+);
 }
 
-if (millis() > nextBirdSpawn) {
+if (score >= 1000 && millis() > nextBirdSpawn) {
 
   birds.push({
     x: random(0, width),
@@ -146,8 +169,8 @@ if (millis() > nextBirdSpawn) {
     targetX: width / 2 + random(-120,120),
     targetY: height * 0.73,
 
-    direction: random() < 0.5 ? 1 : -1,
-    facing: random() < 0.5 ? 1 : -1,
+    direction: 1,
+facing: (random(0,width) < width/2) ? 1 : -1,
 
     leaving: false,
 
@@ -159,10 +182,10 @@ if (millis() > nextBirdSpawn) {
 
   let level = floor((millis() - 30000) / 30000);
 
-  nextBirdSpawn = millis() + random(
-    max(3000, 12000 - level * 1000),
-    max(6000, 18000 - level * 1000)
-  );
+nextBirdSpawn = millis() + random(
+birdSpawnDelay * 0.7,
+birdSpawnDelay
+);
 }
 
   // Sky
@@ -195,6 +218,9 @@ image(beehive, width / 2, height * 0.71, 150, 150);
   drawMiniHiveHealthBar();
   // Bees
   drawBees();
+  if (hiveHealth <= 0) {
+gameOver = true;
+}
 }
 
 function drawClouds() {
@@ -341,11 +367,11 @@ function drawBears() {
       scale(-1,1);
 
     image(
-      bearImage,
-      0,
-      0,
-      FRAME_WIDTH,
-      FRAME_HEIGHT,
+bearImage,
+0,
+0,
+140,
+90,
       bear.frame * FRAME_WIDTH,
       0,
       FRAME_WIDTH,
@@ -506,8 +532,12 @@ function mousePressed() {
       mouseY < bird.y + 60
     ) {
 
-      bird.leaving = true;
-      bird.facing *= -1;
+    bird.leaving = true;
+
+if (bird.x < width/2)
+    bird.facing = -1;
+else
+    bird.facing = 1;
 
     }
   }
@@ -612,5 +642,23 @@ function drawTopUI() {
   // Score (right)
   textAlign(RIGHT, CENTER);
   text("Score: " + score, width - 30, 35);
+
+}
+function keyPressed() {
+
+if (gameOver && key === ' ') {
+
+score = 0;
+hiveHealth = 100;
+
+bears = [];
+birds = [];
+
+gameOver = false;
+
+nextBearSpawn = millis() + 5000;
+nextBirdSpawn = millis() + 8000;
+
+}
 
 }
