@@ -24,6 +24,13 @@ let hiveHealth = 100;
 let bearAttacking = false;
 const MAX_HIVE_HEALTH = 100;
 
+let bears = [];
+
+let minSpawnTime = 7000;
+let maxSpawnTime = 15000;
+
+let bearWalkSpeed = 1.5;
+
 // Bear attacks
 let lastBearAttack = 0;
 
@@ -78,28 +85,47 @@ function setup() {
   }
 }
 
+function updateDifficulty() {
+
+  // Increase difficulty every 30 seconds
+  let level = floor(millis() / 30000);
+
+  // Bears move faster
+  bearWalkSpeed = 1.5 + level * 0.3;
+
+  // Bears spawn more often
+  minSpawnTime = max(2000, 7000 - level * 500);
+  maxSpawnTime = max(5000, 15000 - level * 1000);
+
+}
+
 function draw() {
-  // Spawn a bear randomly every 10-20 seconds
-  if (!bearActive && millis() > nextBearSpawn) {
-    // Choose which side the bear comes from
-    bearDirection = random() < 0.5 ? 1 : -1;
 
-    if (bearDirection === 1) {
-      bearX = -100;
-      bearFacing = 1; // facing right
-    } else {
-      bearX = width + 100;
-      bearFacing = -1; // facing left
-    }
+  updateDifficulty();
+  if (millis() > nextBearSpawn) {
 
-    bearY = height * 0.79 - FRAME_HEIGHT;
+  let direction = random() < 0.5 ? 1 : -1;
 
-    bearLeaving = false;
-    bearGone = false;
-    bearActive = true;
+  bears.push({
 
-    nextBearSpawn = millis() + random(7000, 15000);
-  }
+    x: direction === 1 ? -100 : width + 100,
+    y: height * 0.79 - FRAME_HEIGHT,
+
+    direction: direction,
+    facing: direction,
+
+    leaving: false,
+
+    frame: 0,
+    frameTimer: 0,
+
+    lastAttack: 0
+
+  });
+
+  nextBearSpawn = millis() + random(minSpawnTime, maxSpawnTime);
+
+}
 
   // Sky
   background(135, 206, 235);
@@ -121,7 +147,7 @@ drawHiveHealthBar();
   drawGrassTexture();
 
   // Bear
-  drawBear();
+  drawBears();
 
   // Beehive
   image(beehive, width / 2, height * 0.68, 150, 150);
@@ -208,112 +234,117 @@ function drawBees() {
   }
 }
 
-function drawBear() {
-  if (!bearActive) return;
+function drawBears() {
 
-  let hiveX = width / 2;
+  for (let i = bears.length - 1; i >= 0; i--) {
 
-  // Animate sprite sheet
-  frameTimer++;
+    let bear = bears[i];
+    let hiveX = width / 2;
 
-  if (frameTimer > 10) {
-    bearFrame = (bearFrame + 1) % 4;
-    frameTimer = 0;
-  }
+    // Animation
+    bear.frameTimer++;
 
-  // Walking toward hive
-  if (!bearLeaving) {
-    if (bearDirection === 1) {
-      // Bear came from left
-      if (bearX < hiveX - 120) {
-        bearX += 1.5;
+    if (bear.frameTimer > 10) {
+      bear.frame = (bear.frame + 1) % 4;
+      bear.frameTimer = 0;
+    }
+
+    // Walking
+    if (!bear.leaving) {
+
+      if (bear.direction === 1) {
+
+        if (bear.x < hiveX - 120)
+          bear.x += bearWalkSpeed;
+
+      } else {
+
+        if (bear.x > hiveX + 120)
+          bear.x -= bearWalkSpeed;
+
       }
-    } else {
-      // Bear came from right
-      if (bearX > hiveX + 120) {
-        bearX -= 1.5;
+
+    }
+
+    // Leaving
+    else {
+
+      if (bear.direction === 1)
+        bear.x -= bearWalkSpeed * 1.5;
+      else
+        bear.x += bearWalkSpeed * 1.5;
+
+    }
+
+    // Attack hive
+    let distanceToHive = abs(bear.x - hiveX);
+
+    if (!bear.leaving && distanceToHive <= 120) {
+
+      if (millis() - bear.lastAttack > 1500) {
+
+        hiveHealth -= 5;
+        hiveHealth = max(0, hiveHealth);
+
+        bear.lastAttack = millis();
+
       }
-    }
-  } else {
-    // Bear leaves the way it came
 
-    if (bearDirection === 1) {
-      bearX -= 2.5;
-    } else {
-      bearX += 2.5;
     }
 
-    // Remove bear when off-screen
-    if (bearX < -200 || bearX > width + 200) {
-      bearGone = true;
-      bearActive = false;
-      return;
+    // Draw sprite
+    push();
+
+    translate(bear.x, bear.y);
+
+    if (bear.facing === -1)
+      scale(-1,1);
+
+    image(
+      bearImage,
+      0,
+      0,
+      FRAME_WIDTH,
+      FRAME_HEIGHT,
+      bear.frame * FRAME_WIDTH,
+      0,
+      FRAME_WIDTH,
+      FRAME_HEIGHT
+    );
+
+    pop();
+
+    // Remove offscreen
+    if (bear.x < -200 || bear.x > width + 200) {
+
+      bears.splice(i,1);
+
     }
+
   }
 
- // Attack hive when close enough
-let distanceToHive = abs(bearX - hiveX);
-
-if (!bearLeaving) {
-
-  if (distanceToHive <= 120) {
-
-    bearAttacking = true;
-
-    if (millis() - lastBearAttack > 1500) {
-
-      hiveHealth -= 5;
-      hiveHealth = max(hiveHealth, 0);
-
-      lastBearAttack = millis();
-    }
-  }
-}
-
-if (distanceToHive > 120 || bearLeaving) {
-  bearAttacking = false;
-}
-  push();
-
-  translate(bearX, bearY);
-
-  // Flip sprite when facing left
-  if (bearFacing === -1) {
-    scale(-1, 1);
-  }
-
-  image(
-    bearImage,
-    0,
-    0,
-    FRAME_WIDTH,
-    FRAME_HEIGHT,
-    bearFrame * FRAME_WIDTH,
-    0,
-    FRAME_WIDTH,
-    FRAME_HEIGHT,
-  );
-
-  pop();
 }
 
 function mousePressed() {
-  if (bearGone) return;
 
-  let bearWidth = FRAME_WIDTH;
-  let bearHeight = FRAME_HEIGHT;
+  for (let bear of bears) {
 
-  if (
-    mouseX > bearX - bearWidth / 2 &&
-    mouseX < bearX + bearWidth / 2 &&
-    mouseY > bearY - bearHeight / 2 &&
-    mouseY < bearY + bearHeight / 2
-  ) {
-    bearLeaving = true;
+    if (
 
-    // Turn around
-    bearFacing *= -1;
+      mouseX > bear.x - FRAME_WIDTH/2 &&
+      mouseX < bear.x + FRAME_WIDTH/2 &&
+      mouseY > bear.y - FRAME_HEIGHT/2 &&
+      mouseY < bear.y + FRAME_HEIGHT/2
+
+    ) {
+
+      bear.leaving = true;
+      bear.facing *= -1;
+
+    }
+
   }
+
 }
 
 function drawHiveHealthBar() {
