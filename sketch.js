@@ -251,16 +251,15 @@ function drawBear() {
     }
   }
 
-  // Attack hive when close enough
-if (!bearLeaving) {
+ // Attack hive when close enough
+let distanceToHive = abs(bearX - hiveX);
 
-  let distanceToHive = abs(bearX - hiveX);
+if (!bearLeaving) {
 
   if (distanceToHive <= 120) {
 
-  bearAttacking = true;
+    bearAttacking = true;
 
-    // Attack every 1.5 seconds
     if (millis() - lastBearAttack > 1500) {
 
       hiveHealth -= 5;
@@ -270,6 +269,7 @@ if (!bearLeaving) {
     }
   }
 }
+
 if (distanceToHive > 120 || bearLeaving) {
   bearAttacking = false;
 }
