@@ -7,6 +7,9 @@ let bees = [];
 let bearImage;
 let bearX;
 let bearY;
+// Score
+let score = 0;
+let lastScoreTime = 0;
 
 let bearFrame = 0;
 let frameTimer = 0;
@@ -18,6 +21,7 @@ let bearDirection = 1;
 let bearFacing = 1;
 // Hive health
 let hiveHealth = 100;
+let bearAttacking = false;
 const MAX_HIVE_HEALTH = 100;
 
 // Bear attacks
@@ -99,6 +103,9 @@ function draw() {
 
   // Sky
   background(135, 206, 235);
+
+  updateScore();
+drawTopUI();
 
 drawHiveHealthBar();
 
@@ -251,6 +258,8 @@ if (!bearLeaving) {
 
   if (distanceToHive <= 120) {
 
+  bearAttacking = true;
+
     // Attack every 1.5 seconds
     if (millis() - lastBearAttack > 1500) {
 
@@ -261,7 +270,9 @@ if (!bearLeaving) {
     }
   }
 }
-
+if (distanceToHive > 120 || bearLeaving) {
+  bearAttacking = false;
+}
   push();
 
   translate(bearX, bearY);
@@ -373,4 +384,35 @@ function drawMiniHiveHealthBar() {
   rect(hiveX - barWidth / 2, hiveY - 95, barWidth, barHeight);
 
   noStroke();
+}
+
+function updateScore() {
+
+  // Gain 100 points every second unless a bear is attacking
+  if (!bearAttacking) {
+
+    if (millis() - lastScoreTime >= 1000) {
+
+      score += 100;
+      lastScoreTime = millis();
+
+    }
+
+  }
+
+}
+
+
+function drawTopUI() {
+
+  // Round label (left)
+  fill(255);
+  textSize(24);
+  textAlign(LEFT, CENTER);
+  text("Round 1", 30, 35);
+
+  // Score (right)
+  textAlign(RIGHT, CENTER);
+  text("Score: " + score, width - 30, 35);
+
 }
