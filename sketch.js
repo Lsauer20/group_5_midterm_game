@@ -1,4 +1,5 @@
 
+let stingerCursor; //stinger cursor
 
 let dropletImage; //DROPLET POWERUP
 let droplet;
@@ -72,11 +73,14 @@ function preload() {
   beeImage = loadImage("assets/images/happy_bee.png");
   bearImage = loadImage("assets/images/bear.png");
   dropletImage = loadImage("assets/images/DROPLET.png");
+  stingerCursor = loadImage("assets/images/StingerPointer.png");
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   imageMode(CENTER);
+  noCursor();
+
 
   bearX = -100; // Start off-screen
   bearY = height * 0.75 - 20;
@@ -160,6 +164,7 @@ function draw() {
     textSize(30);
     text("Press SPACE to Start", width / 2, height / 2 + 40);
 
+    
     return;
   }
 
@@ -330,6 +335,7 @@ text("Enemies are speeding up", width/2, height/2 + 80);
   if (hiveHealth <= 0) {
 gameOver = true;
 }
+drawCustomCursor();
 }
 
 function drawClouds() {
@@ -756,6 +762,17 @@ function drawHiveHealthBar() {
   );
 }
 
+function drawCustomCursor() { //FUNCTION TO DRAW CUSTOM CURSOR
+
+  image(
+    stingerCursor,
+    mouseX,
+    mouseY,
+    50,
+    50
+  );
+
+}
 
 function drawMiniHiveHealthBar() {
 
