@@ -11,7 +11,9 @@ let birds = [];
 let nextBirdSpawn;
 let birdWalkSpeed = 4;
 
+let gameStarted = false;
 let gameOver = false;
+let introTimer = 300; // 5 seconds
 let fasterTimer = 0;
 let previousLevel = 0;
 let scoreLevel = 0;
@@ -124,7 +126,22 @@ birdSpawnDelay = max(150, 4000 / pow(2, scoreLevel));
 }
 
 function draw() {
+// Start screen
+if (!gameStarted) {
 
+  background(135,206,235);
+
+  fill(255);
+  textAlign(CENTER, CENTER);
+
+  textSize(70);
+  text("DEFEND YOUR HIVE", width/2, height/2 - 50);
+
+  textSize(30);
+  text("Press SPACE to Start", width/2, height/2 + 40);
+
+  return;
+}
 if (gameOver) {
 
 background(0);
@@ -222,10 +239,31 @@ drawHiveHealthBar();
   // Beehive
 image(beehive, width / 2, height * 0.71, 150, 150);
 
- drawMiniHiveHealthBar();
+drawMiniHiveHealthBar();
 
 // Bees
 drawBees();
+
+// Intro message
+if (introTimer > 0) {
+
+  fill(255);
+  stroke(0);
+  strokeWeight(4);
+
+  textAlign(CENTER, CENTER);
+
+  textSize(38);
+
+  text(
+    "Welcome to Protect Your Hive!\n\nDefend your precious bees\nagainst pesky critters trying\nto steal your delicious honey.\nSurvive for as long as you can!",
+    width/2,
+    height/2
+  );
+
+  introTimer--;
+
+}
 
 if (fasterTimer > 0) {
 
@@ -691,25 +729,33 @@ function drawTopUI() {
 }
 function keyPressed() {
 
-if (gameOver && key === ' ') {
+  // Start game
+  if (!gameStarted && key === ' ') {
 
-score = 0;
-hiveHealth = 100;
+    gameStarted = true;
+    introTimer = 300;
 
-bears = [];
-birds = [];
+  }
 
-gameOver = false;
+  // Restart after game over
+  else if (gameOver && key === ' ') {
 
-// Reset difficulty system
-scoreLevel = 0;
-previousLevel = 0;
-fasterTimer = 0;
+    score = 0;
+    hiveHealth = 100;
 
-// Reset spawn timers
-nextBearSpawn = millis() + 5000;
-nextBirdSpawn = millis() + 8000;
+    bears = [];
+    birds = [];
 
-}
+    gameOver = false;
+
+    scoreLevel = 0;
+    previousLevel = 0;
+    fasterTimer = 0;
+    introTimer = 300;
+
+    nextBearSpawn = millis() + 5000;
+    nextBirdSpawn = millis() + 8000;
+
+  }
 
 }
