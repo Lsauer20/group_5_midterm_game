@@ -1,11 +1,10 @@
 // Pause System
 let paused = false;
-
 let pauseButton = {
-  x: 20,
-  y: 55,
-  w: 60,
-  h: 60
+  x: window.innerWidth - 75,
+  y: 15,
+  w: 55,
+  h: 40
 };
 let beehive;
 let beeImage;
@@ -228,6 +227,8 @@ birdSpawnDelay
   updateScore();
 drawTopUI();
 drawPauseButton();
+pauseButton.x = width - pauseButton.w - 20;
+pauseButton.y = 20; 
 if (paused) {
 
   fill(100,100,100,150);
@@ -755,72 +756,89 @@ function updateScore() {
 
 function drawTopUI() {
 
-  // Round label (left)
-  fill(255);
-  textSize(24);
-  textAlign(LEFT, CENTER);
-  text("Round 1", 30, 35);
+  // ----- ROUND BOX -----
+  fill(50, 50, 50, 180);
+  stroke(255);
+  strokeWeight(2);
+  rect(20, 15, 140, 40, 8);
 
-  // Score (right)
-  textAlign(RIGHT, CENTER);
-  text("Score: " + score, width - 30, 35);
+  noStroke();
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(20);
+  text("Round 1", 90, 35);
+
+
+  // ----- SCORE BOX -----
+  fill(50, 50, 50, 180);
+  stroke(255);
+  strokeWeight(2);
+  rect(width - 230, 15, 140, 40, 8);
+
+  noStroke();
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(20);
+  text("Score: " + score, width - 160, 35);
 
 }
 
 function drawPauseButton() {
 
-  textAlign(CENTER, CENTER);
+    pauseButton.x = width - pauseButton.w - 20;
+    pauseButton.y = 20;
 
-  if (!paused) {
+    rectMode(CORNER);
 
     fill(220, 0, 0);
-    rect(pauseButton.x, pauseButton.y,
-         pauseButton.w,
-         pauseButton.h,
-         10);
+    noStroke();
+    rect(
+        pauseButton.x,
+        pauseButton.y,
+        pauseButton.w,
+        pauseButton.h,
+        12
+    );
 
     stroke(255);
     strokeWeight(6);
 
-    line(
-      pauseButton.x + 22,
-      pauseButton.y + 15,
-      pauseButton.x + 22,
-      pauseButton.y + 45
-    );
+    if (!paused) {
 
-    line(
-      pauseButton.x + 38,
-      pauseButton.y + 15,
-      pauseButton.x + 38,
-      pauseButton.y + 45
-    );
+        // Pause icon
+        line(
+            pauseButton.x + 22,
+            pauseButton.y + 15,
+            pauseButton.x + 22,
+            pauseButton.y + 45
+        );
+
+        line(
+            pauseButton.x + 38,
+            pauseButton.y + 15,
+            pauseButton.x + 38,
+            pauseButton.y + 45
+        );
+
+    } else {
+
+        // Play icon
+        fill(255);
+        noStroke();
+
+        triangle(
+            pauseButton.x + 22,
+            pauseButton.y + 15,
+
+            pauseButton.x + 22,
+            pauseButton.y + 45,
+
+            pauseButton.x + 42,
+            pauseButton.y + 30
+        );
+    }
 
     noStroke();
-
-  } else {
-
-    fill(220,0,0);
-
-    rect(
-      pauseButton.x,
-      pauseButton.y,
-      pauseButton.w,
-      pauseButton.h,
-      10
-    );
-
-    fill(255);
-    textSize(14);
-
-    text(
-      "Resume",
-      pauseButton.x + pauseButton.w/2,
-      pauseButton.y + pauseButton.h/2
-    );
-
-  }
-
 }
 
 function keyPressed() {
