@@ -167,38 +167,7 @@ text("Press SPACE to restart", width/2, height/2 + 80);
 
 return;
 }
-if (paused) {
 
-  background(135,206,235);
-
-  drawClouds();
-
-  fill(34,139,34);
-  noStroke();
-  rect(0, height * 0.75, width, height * 0.25);
-
-  drawGrassTexture();
-  drawBears();
-  drawBirds();
-
-  image(beehive, width/2, height*0.71, 150, 150);
-  drawMiniHiveHealthBar();
-  drawHiveHealthBar();
-  drawBees();
-
-  drawTopUI();
-  drawPauseButton();
-
-  fill(80,80,80,170);
-  rect(0,0,width,height);
-
-  fill(255);
-  textAlign(CENTER,CENTER);
-  textSize(80);
-  text("PAUSED", width/2, height/2);
-
-  return;
-}
 updateDifficulty();
 if (score >= 200 && millis() > nextBearSpawn) {
 
@@ -326,6 +295,22 @@ text("Enemies are speeding up", width/2, height/2 + 80);
 }
   if (hiveHealth <= 0) {
 gameOver = true;
+}
+drawTopUI();
+drawPauseButton();
+
+if (paused) {
+  fill(80, 80, 80, 170);
+  noStroke();
+  rect(0, 0, width, height);
+
+  drawTopUI();
+  drawPauseButton();
+
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(80);
+  text("PAUSED", width / 2, height / 2);
 }
 }
 
@@ -637,11 +622,16 @@ if (
     mouseY > pauseButton.y &&
     mouseY < pauseButton.y + pauseButton.h
 ) {
+paused = !paused;
 
-    paused = !paused;
+if (paused) {
+  redraw();
+  noLoop();
+} else {
+  loop();
+}
 
-    return;
-
+return;
 }
   // Bears
   for (let bear of bears) {
