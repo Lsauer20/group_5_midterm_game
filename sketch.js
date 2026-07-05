@@ -1,3 +1,13 @@
+// Pause System
+let paused = false;
+
+let pauseButton = {
+  x: 20,
+  y: 55,
+  w: 60,
+  h: 60
+};
+let gameOver = false;
 let beehive;
 let beeImage;
 let clouds = [];
@@ -54,6 +64,7 @@ let bearWalkSpeed = 1.5;
 
 // Bear attacks
 let lastBearAttack = 0;
+
 
 const FRAME_WIDTH = 80; // 320 / 4
 const FRAME_HEIGHT = 48;
@@ -217,7 +228,23 @@ birdSpawnDelay
 
   updateScore();
 drawTopUI();
+drawPauseButton();
+if (paused) {
 
+  fill(100,100,100,150);
+  rect(0,0,width,height);
+
+  fill(255);
+
+  textAlign(CENTER,CENTER);
+
+  textSize(80);
+
+  text("PAUSED", width/2, height/2);
+
+  return;
+
+}
 drawHiveHealthBar();
 
   // Clouds
@@ -589,6 +616,19 @@ let col = bird.frame % 8;
 
 function mousePressed() {
 
+
+if (
+    mouseX > pauseButton.x &&
+    mouseX < pauseButton.x + pauseButton.w &&
+    mouseY > pauseButton.y &&
+    mouseY < pauseButton.y + pauseButton.h
+) {
+
+    paused = !paused;
+
+    return;
+
+}
   // Bears
   for (let bear of bears) {
 
@@ -727,6 +767,63 @@ function drawTopUI() {
   text("Score: " + score, width - 30, 35);
 
 }
+
+function drawPauseButton() {
+
+  textAlign(CENTER, CENTER);
+
+  if (!paused) {
+
+    fill(220, 0, 0);
+    rect(pauseButton.x, pauseButton.y,
+         pauseButton.w,
+         pauseButton.h,
+         10);
+
+    stroke(255);
+    strokeWeight(6);
+
+    line(
+      pauseButton.x + 22,
+      pauseButton.y + 15,
+      pauseButton.x + 22,
+      pauseButton.y + 45
+    );
+
+    line(
+      pauseButton.x + 38,
+      pauseButton.y + 15,
+      pauseButton.x + 38,
+      pauseButton.y + 45
+    );
+
+    noStroke();
+
+  } else {
+
+    fill(220,0,0);
+
+    rect(
+      pauseButton.x,
+      pauseButton.y,
+      pauseButton.w,
+      pauseButton.h,
+      10
+    );
+
+    fill(255);
+    textSize(14);
+
+    text(
+      "Resume",
+      pauseButton.x + pauseButton.w/2,
+      pauseButton.y + pauseButton.h/2
+    );
+
+  }
+
+}
+
 function keyPressed() {
 
   // Start game
