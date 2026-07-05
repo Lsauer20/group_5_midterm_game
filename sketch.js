@@ -7,7 +7,6 @@ let pauseButton = {
   w: 60,
   h: 60
 };
-let gameOver = false;
 let beehive;
 let beeImage;
 let clouds = [];
