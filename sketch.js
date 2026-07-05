@@ -1,10 +1,10 @@
 // Pause System
 let paused = false;
 let pauseButton = {
-  x: window.innerWidth - 75,
+  x: 0,
   y: 15,
-  w: 55,
-  h: 40
+  w: 60,
+  h: 45
 };
 let beehive;
 let beeImage;
@@ -77,7 +77,8 @@ function preload() {
 function setup() {
   createCanvas(windowWidth, windowHeight);
   imageMode(CENTER);
-
+pauseButton.x = width - pauseButton.w - 20;
+pauseButton.y = 15;
   bearX = -100; // Start off-screen
   bearY = height * 0.75 - 20;
   nextBearSpawn = millis() + random(10000, 20000);
@@ -166,7 +167,38 @@ text("Press SPACE to restart", width/2, height/2 + 80);
 
 return;
 }
+if (paused) {
 
+  background(135,206,235);
+
+  drawClouds();
+
+  fill(34,139,34);
+  noStroke();
+  rect(0, height * 0.75, width, height * 0.25);
+
+  drawGrassTexture();
+  drawBears();
+  drawBirds();
+
+  image(beehive, width/2, height*0.71, 150, 150);
+  drawMiniHiveHealthBar();
+  drawHiveHealthBar();
+  drawBees();
+
+  drawTopUI();
+  drawPauseButton();
+
+  fill(80,80,80,170);
+  rect(0,0,width,height);
+
+  fill(255);
+  textAlign(CENTER,CENTER);
+  textSize(80);
+  text("PAUSED", width/2, height/2);
+
+  return;
+}
 updateDifficulty();
 if (score >= 200 && millis() > nextBearSpawn) {
 
@@ -226,25 +258,7 @@ birdSpawnDelay
 
   updateScore();
 drawTopUI();
-drawPauseButton();
-pauseButton.x = width - pauseButton.w - 20;
-pauseButton.y = 20; 
-if (paused) {
-
-  fill(100,100,100,150);
-  rect(0,0,width,height);
-
-  fill(255);
-
-  textAlign(CENTER,CENTER);
-
-  textSize(80);
-
-  text("PAUSED", width/2, height/2);
-
-  return;
-
-}
+drawPauseButton(); 
 drawHiveHealthBar();
 
   // Clouds
@@ -773,72 +787,40 @@ function drawTopUI() {
   fill(50, 50, 50, 180);
   stroke(255);
   strokeWeight(2);
-  rect(width - 230, 15, 140, 40, 8);
+rect(width - 400, 15, 150, 40, 8);
 
   noStroke();
   fill(255);
   textAlign(CENTER, CENTER);
   textSize(20);
-  text("Score: " + score, width - 160, 35);
+text("Score: " + score, width - 325, 35)
 
 }
 
 function drawPauseButton() {
 
-    pauseButton.x = width - pauseButton.w - 20;
-    pauseButton.y = 20;
+  fill(220, 0, 0);
+  noStroke();
+  rect(pauseButton.x, pauseButton.y, pauseButton.w, pauseButton.h, 12);
 
-    rectMode(CORNER);
+  fill(255);
 
-    fill(220, 0, 0);
-    noStroke();
-    rect(
-        pauseButton.x,
-        pauseButton.y,
-        pauseButton.w,
-        pauseButton.h,
-        12
+  if (!paused) {
+
+    // Pause bars
+    rect(pauseButton.x + 20, pauseButton.y + 10, 5, 25, 2);
+    rect(pauseButton.x + 35, pauseButton.y + 10, 5, 25, 2);
+
+  } else {
+
+    // Play icon
+    triangle(
+      pauseButton.x + 22, pauseButton.y + 10,
+      pauseButton.x + 22, pauseButton.y + 35,
+      pauseButton.x + 42, pauseButton.y + 22.5
     );
 
-    stroke(255);
-    strokeWeight(6);
-
-    if (!paused) {
-
-        // Pause icon
-        line(
-            pauseButton.x + 22,
-            pauseButton.y + 15,
-            pauseButton.x + 22,
-            pauseButton.y + 45
-        );
-
-        line(
-            pauseButton.x + 38,
-            pauseButton.y + 15,
-            pauseButton.x + 38,
-            pauseButton.y + 45
-        );
-
-    } else {
-
-        // Play icon
-        fill(255);
-        noStroke();
-
-        triangle(
-            pauseButton.x + 22,
-            pauseButton.y + 15,
-
-            pauseButton.x + 22,
-            pauseButton.y + 45,
-
-            pauseButton.x + 42,
-            pauseButton.y + 30
-        );
-    }
-
-    noStroke();
+  }
 }
 
 function keyPressed() {
