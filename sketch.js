@@ -1,3 +1,12 @@
+
+let stingerCursor; //stinger cursor
+
+let dropletImage; //DROPLET POWERUP
+let droplet;
+
+let rainActive = false;
+let rainEndTime = 0;
+
 let beehive;
 let beeImage;
 let clouds = [];
@@ -63,11 +72,15 @@ function preload() {
   beehive = loadImage("assets/images/beehive.png");
   beeImage = loadImage("assets/images/happy_bee.png");
   bearImage = loadImage("assets/images/bear.png");
+  dropletImage = loadImage("assets/images/DROPLET.png");
+  stingerCursor = loadImage("assets/images/StingerPointer.png");
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   imageMode(CENTER);
+  noCursor();
+
 
   bearX = -100; // Start off-screen
   bearY = height * 0.75 - 20;
@@ -106,6 +119,12 @@ function setup() {
       size: random(25, 40),
     });
   }
+  // Create droplet powerup
+    droplet = {
+    x: random(100, width - 100),
+    y: random(100, height * 0.5),
+    active: true
+  };
 }
 
 function updateDifficulty() {
@@ -125,23 +144,30 @@ birdSpawnDelay = max(150, 4000 / pow(2, scoreLevel));
 
 }
 
-function draw() {
 // Start screen
-if (!gameStarted) {
+function draw() {
 
-  background(135,206,235);
+  if (rainActive && millis() > rainEndTime) {
+    rainActive = false;
+  }
 
-  fill(255);
-  textAlign(CENTER, CENTER);
+  if (!gameStarted) {
 
-  textSize(70);
-  text("DEFEND YOUR HIVE", width/2, height/2 - 50);
+    background(135, 206, 235);
 
-  textSize(30);
-  text("Press SPACE to Start", width/2, height/2 + 40);
+    fill(255);
+    textAlign(CENTER, CENTER);
 
-  return;
-}
+    textSize(70);
+    text("DEFEND YOUR HIVE", width / 2, height / 2 - 50);
+
+    textSize(30);
+    text("Press SPACE to Start", width / 2, height / 2 + 40);
+
+    
+    return;
+  }
+
 if (gameOver) {
 
 background(0);
@@ -213,7 +239,27 @@ birdSpawnDelay
 }
 
   // Sky
+if (rainActive) {
+  background(80, 100, 130);
+} else {
   background(135, 206, 235);
+}
+
+// Rain effect
+if (rainActive) {
+
+  stroke(180, 220, 255);
+
+  for (let i = 0; i < 100; i++) {
+
+    let x = random(width);
+    let y = random(height);
+
+    line(x, y, x - 5, y + 15);
+
+  }
+
+}
 
   updateScore();
 drawTopUI();
@@ -230,6 +276,9 @@ drawHiveHealthBar();
 
   // Grass texture
   drawGrassTexture();
+
+  // Droplet powerup
+  drawDroplet();
 
   // Bear
   drawBears();
@@ -286,10 +335,15 @@ text("Enemies are speeding up", width/2, height/2 + 80);
   if (hiveHealth <= 0) {
 gameOver = true;
 }
+drawCustomCursor();
 }
 
 function drawClouds() {
+  if (rainActive) { //BACKGROUND COLOR IS DARKER WHEN RAIN IS ACTIVE
+  fill(120);
+} else {
   fill(255);
+}
   noStroke();
 
   for (let cloud of clouds) {
@@ -365,6 +419,19 @@ function drawBees() {
   }
 }
 
+function drawDroplet() {
+
+  if (!droplet.active) return;
+
+  image(
+    dropletImage,
+    droplet.x,
+    droplet.y,
+    60,
+    60
+  );
+}
+
 function drawBears() {
 
   for (let i = bears.length - 1; i >= 0; i--) {
@@ -381,31 +448,36 @@ function drawBears() {
     }
 
     // Walking
-    if (!bear.leaving) {
+let currentBearSpeed =
+  rainActive ? bearWalkSpeed * 0.5 : bearWalkSpeed;
 
-      if (bear.direction === 1) {
+if (!bear.leaving) {
 
-        if (bear.x < hiveX - 120)
-          bear.x += bearWalkSpeed;
+  if (bear.direction === 1) {
 
-      } else {
-
-        if (bear.x > hiveX + 120)
-          bear.x -= bearWalkSpeed;
-
-      }
-
+    if (bear.x < hiveX - 120) {
+      bear.x += currentBearSpeed;
     }
 
-    // Leaving
-    else {
+  } else {
 
-      if (bear.direction === 1)
-        bear.x -= bearWalkSpeed * 1.5;
-      else
-        bear.x += bearWalkSpeed * 1.5;
-
+    if (bear.x > hiveX + 120) {
+      bear.x -= currentBearSpeed;
     }
+
+  }
+
+}
+
+// Leaving
+else {
+
+  if (bear.direction === 1)
+    bear.x -= currentBearSpeed * 1.5;
+  else
+    bear.x += currentBearSpeed * 1.5;
+
+}
 
     // Attack hive
     let distanceToHive = abs(bear.x - hiveX);
@@ -464,6 +536,9 @@ function drawBirds() {
 
     let bird = birds[i];
 
+let currentBirdSpeed =
+  rainActive ? birdWalkSpeed * 0.5 : birdWalkSpeed;
+
     // Animate sprite
     bird.frameTimer++;
 
@@ -489,24 +564,24 @@ if (!bird.leaving) {
 
   if (distance > 5) {
 
-    bird.x += dx/distance * birdWalkSpeed;
-    bird.y += dy/distance * birdWalkSpeed;
+    bird.x += (dx / distance) * currentBirdSpeed;
+    bird.y += (dy / distance) * currentBirdSpeed;
 
   }
 
 }
 
-    // Leaving
-    else {
+// Leaving
+else {
 
-      bird.y -= birdWalkSpeed*1.5;
+  bird.y -= currentBirdSpeed * 1.5;
 
-if (bird.facing === 1)
-  bird.x += birdWalkSpeed;
-else
-  bird.x -= birdWalkSpeed;
+  if (bird.facing === 1)
+    bird.x += currentBirdSpeed;
+  else
+    bird.x -= currentBirdSpeed;
 
-    }
+}
 
     // Damage hive
   let hiveY = height*0.73;
@@ -589,6 +664,26 @@ let col = bird.frame % 8;
 
 function mousePressed() {
 
+
+if ( // Check if droplet is clicked
+  droplet.active &&
+  dist(mouseX, mouseY, droplet.x, droplet.y) < 30
+) {
+
+  rainActive = true;
+  rainEndTime = millis() + 5000;
+
+  droplet.active = false;
+
+  setTimeout(() => {
+    droplet.x = random(100, width - 100);
+    droplet.y = random(100, height * 0.5);
+    droplet.active = true;
+  }, 15000);
+
+  return;
+}
+
   // Bears
   for (let bear of bears) {
 
@@ -667,6 +762,17 @@ function drawHiveHealthBar() {
   );
 }
 
+function drawCustomCursor() { //FUNCTION TO DRAW CUSTOM CURSOR
+
+  image(
+    stingerCursor,
+    mouseX,
+    mouseY,
+    50,
+    50
+  );
+
+}
 
 function drawMiniHiveHealthBar() {
 
