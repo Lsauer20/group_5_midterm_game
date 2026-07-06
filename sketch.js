@@ -303,9 +303,9 @@ noStroke();
 
 rect(
 width/2-340,
-height/2-240,
+height/2-255,
 680,
-340,
+390,
 20
 );
 
@@ -318,21 +318,21 @@ textSize(34);
 text(
 "HOW TO PLAY",
 width/2,
-height/2-185
+height/2-205
 );
 
 textSize(22);
 
 text(
-"Protect your hive from bears and birds.\n\n"
+"Protect your hive from bears and birds.\n"
 +
-"Click enemies to scare them away.\n\n"
+"Click enemies to scare them away.\n"
 +
-"Survive as long as possible to earn points.\n\n"
+"Survive as long as possible to earn points.\n"
 +
 "Each round makes enemies faster.",
 width/2,
-height/2-40
+height/2-70
 );
 
 fill(255,210,0);
@@ -342,7 +342,7 @@ textSize(24);
 text(
 "CLICK ENEMIES TO SEND THEM AWAY!",
 width/2,
-height/2+65
+height/2+105
 );
 
 introTimer--;
