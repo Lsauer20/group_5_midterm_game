@@ -12,6 +12,9 @@ let clouds = [];
 let grassBlades = [];
 let bees = [];
 
+let roundComplete = false;
+let roundTarget = 10000;
+
 let bearImage;
 let birdImage;
 let birds = [];
@@ -63,6 +66,15 @@ let bearWalkSpeed = 1.5;
 
 // Bear attacks
 let lastBearAttack = 0;
+
+let shopOpen = false;
+
+let shopButton = {
+  x: 20,
+  y: height - 70,
+  w: 180,
+  h: 50
+};
 
 
 const FRAME_WIDTH = 80; // 320 / 4
@@ -122,18 +134,19 @@ pauseButton.y = 15;
 
 function updateDifficulty() {
 
-scoreLevel = floor(score / 1000);
-if (scoreLevel > previousLevel) {
-  fasterTimer = 120; // 3 seconds
-  previousLevel = scoreLevel;
-}
+  // Every 2,500 points enemies get a little faster
+  speedLevel = floor(score / 2500);
 
-bearWalkSpeed = 1.5 + scoreLevel * 0.4;
-birdWalkSpeed = 4 + scoreLevel * 0.5;
+  // Every 10,000 points is a new round
+  round = floor(score / 10000) + 1;
 
-// Every 5000 score halves the delay again
-bearSpawnDelay = max(100, 3000 / pow(2, scoreLevel));
-birdSpawnDelay = max(150, 4000 / pow(2, scoreLevel));
+  if (speedLevel > previousLevel) {
+    fasterTimer = 120;
+    previousLevel = speedLevel;
+  }
+
+  bearWalkSpeed = 1.5 + speedLevel * 0.15;
+  birdWalkSpeed = 4 + speedLevel * 0.20;
 
 }
 
@@ -259,6 +272,10 @@ nextBearSpawn = millis() + random(
 bearSpawnDelay * 0.5,
 bearSpawnDelay
 );
+}
+
+if (score >= roundTarget) {
+  roundComplete = true;
 }
 
 if (introTimer <= 0 && millis() > nextBirdSpawn) {
@@ -937,7 +954,7 @@ function drawTopUI() {
   textSize(17);
 
   text(
-    "Round " + (scoreLevel + 1),
+    "Round " + round,
     20 + 125 / 2,
     18 + 40 / 2
   );
@@ -977,6 +994,20 @@ fill(255,180,0);
 
 function keyPressed() {
 
+  if (roundComplete && keyCode === ENTER) {
+
+  roundComplete = false;
+
+  roundTarget += 10000;
+
+  bears = [];
+  birds = [];
+
+  nextBearSpawn = millis() + 1500;
+  nextBirdSpawn = millis() + 4000;
+
+}
+
   // Start game
   if (!gameStarted && key === ' ') {
 
@@ -1006,4 +1037,23 @@ function keyPressed() {
 
   }
 
+}
+
+if (roundComplete) {
+
+  background(35,60,90);
+
+  fill(255);
+  textAlign(CENTER,CENTER);
+
+  textSize(60);
+  text("ROUND COMPLETE!", width/2, height/2-120);
+
+  textSize(30);
+  text("Great job defending the hive!", width/2, height/2-40);
+
+  textSize(24);
+  text("Press ENTER to begin Round " + (round+1), width/2, height/2+70);
+
+  return;
 }
