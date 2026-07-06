@@ -21,7 +21,7 @@ let birdWalkSpeed = 4;
 
 let gameStarted = false;
 let gameOver = false;
-let introTimer = 300; // 5 seconds
+let introTimer = 420; // 5 seconds
 let fasterTimer = 0;
 let previousLevel = 0;
 let scoreLevel = 0;
@@ -77,6 +77,7 @@ function preload() {
 function setup() {
   createCanvas(windowWidth, windowHeight);
   imageMode(CENTER);
+  textFont("Trebuchet MS");
 pauseButton.x = width - pauseButton.w - 20;
 pauseButton.y = 15;
   bearX = -100; // Start off-screen
@@ -136,21 +137,52 @@ birdSpawnDelay = max(150, 4000 / pow(2, scoreLevel));
 }
 
 function draw() {
-// Start screen
 if (!gameStarted) {
 
-  background(135,206,235);
+background(120, 200, 255);
 
-  fill(255);
-  textAlign(CENTER, CENTER);
+// Sun
+fill(255, 215, 0);
+noStroke();
+circle(width - 150, 120, 120);
 
-  textSize(70);
-  text("DEFEND YOUR HIVE", width/2, height/2 - 50);
+// Grass
+fill(60, 180, 75);
+rect(0, height * 0.75, width, height * 0.25);
 
-  textSize(30);
-  text("Press SPACE to Start", width/2, height/2 + 40);
+// Clouds
+drawClouds();
 
-  return;
+// Title
+textAlign(CENTER, CENTER);
+
+fill(255);
+stroke(0);
+strokeWeight(5);
+
+textSize(72);
+text("🐝 DEFEND THE HIVE 🐝", width / 2, 140);
+
+// Subtitle
+noStroke();
+fill(255);
+
+textSize(28);
+text("Protect your bees and honey from hungry invaders!", width / 2, 215);
+
+// Start button
+fill(255, 200, 0);
+stroke(0);
+strokeWeight(3);
+rect(width/2 - 150, height/2 + 40, 300, 70, 20);
+
+fill(0);
+noStroke();
+
+textSize(34);
+text("PRESS SPACE TO START", width/2, height/2 + 75);
+
+return;
 }
 if (gameOver) {
 
@@ -160,6 +192,10 @@ fill(255);
 textAlign(CENTER, CENTER);
 
 textSize(60);
+fill(0,120);
+text("GAME OVER", width/2+4, height/2+4);
+
+fill(255);
 text("GAME OVER", width/2, height/2);
 
 textSize(30);
@@ -257,21 +293,31 @@ drawBees();
 // Intro message
 if (introTimer > 0) {
 
-  fill(255);
-  stroke(0);
-  strokeWeight(4);
+fill(0, 0, 0, 170);
+noStroke();
+rect(width/2 - 290, height/2 - 180, 580, 300, 20);
 
-  textAlign(CENTER, CENTER);
+fill(255);
 
-  textSize(38);
+textAlign(CENTER, CENTER);
 
-  text(
-    "Welcome to Protect Your Hive!\n\nDefend your precious bees\nagainst pesky critters trying\nto steal your delicious honey.\nSurvive for as long as you can!",
-    width/2,
-    height/2
-  );
+textSize(40);
+text("Welcome to Defend the Hive!", width/2, height/2 - 130);
 
-  introTimer--;
+textSize(24);
+
+text(
+"Your hive is under attack!\n\n" +
+"Click on bears and birds\n" +
+"to scare them away before\n" +
+"they damage your hive.\n\n" +
+"Every second you survive earns points.\n\n" +
+"CLICK ENEMIES TO SEND THEM AWAY!",
+width/2,
+height/2 + 10
+);
+
+introTimer--;
 
 }
 
@@ -680,7 +726,7 @@ function drawHiveHealthBar() {
   let y = 20;
 
   // Background
-  fill(80);
+  fill(40,40,40,180);
   noStroke();
   rect(x, y, barWidth, barHeight);
 
@@ -695,7 +741,7 @@ function drawHiveHealthBar() {
 
   // Border
   noFill();
-  stroke(0);
+  stroke(255);
   strokeWeight(2);
   rect(x, y, barWidth, barHeight);
 
@@ -760,40 +806,46 @@ function updateScore() {
 
 function drawTopUI() {
 
-  // ----- ROUND BOX -----
-  fill(50, 50, 50, 180);
-  stroke(255);
-  strokeWeight(2);
-  rect(20, 15, 140, 40, 8);
+fill(40, 40, 40, 180);
+stroke(255);
+strokeWeight(2);
 
-  noStroke();
-  fill(255);
-  textAlign(CENTER, CENTER);
-  textSize(20);
-  text("Round 1", 90, 35);
+// Round box
+rect(20, 15, 160, 45, 10);
 
+// Score box
+rect(200, 15, 180, 45, 10);
 
-  // ----- SCORE BOX -----
-  fill(50, 50, 50, 180);
-  stroke(255);
-  strokeWeight(2);
-rect(width - 400, 15, 150, 40, 8);
+// Health bar stays centered
 
-  noStroke();
-  fill(255);
-  textAlign(CENTER, CENTER);
-  textSize(20);
-text("Score: " + score, width - 325, 35)
+fill(255);
+noStroke();
+
+textAlign(CENTER, CENTER);
+
+textSize(22);
+
+text(
+"Round " + (scoreLevel + 1),
+100,
+38
+);
+
+text(
+"Score: " + score,
+290,
+38
+);
 
 }
 
 function drawPauseButton() {
 
-  fill(220, 0, 0);
+fill(255,180,0);
   noStroke();
   rect(pauseButton.x, pauseButton.y, pauseButton.w, pauseButton.h, 12);
 
-  fill(255);
+  fill(50);
 
   if (!paused) {
 
