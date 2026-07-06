@@ -139,69 +139,74 @@ birdSpawnDelay = max(150, 4000 / pow(2, scoreLevel));
 function draw() {
 if (!gameStarted) {
 
-background(120, 200, 255);
+background(125, 205, 255);
 
 // Sun
-fill(255, 215, 0);
 noStroke();
-circle(width - 150, 120, 120);
-
-// Grass
-fill(60, 180, 75);
-rect(0, height * 0.75, width, height * 0.25);
+fill(255,220,80);
+circle(width-140,120,110);
 
 // Clouds
 drawClouds();
 
-// Title
-textAlign(CENTER, CENTER);
+// Ground
+fill(60,180,75);
+rect(0,height*0.75,width,height*0.25);
 
-fill(255);
+// Draw two bees
+drawStartBees();
+
+
+// Main title
+textAlign(CENTER,CENTER);
+
 stroke(0);
-strokeWeight(5);
+strokeWeight(6);
+fill(255);
 
-textSize(72);
-text("🐝 DEFEND THE HIVE 🐝", width / 2, 140);
+textSize(62);
+text("DEFEND THE HIVE",width/2,120);
 
 // Subtitle
 noStroke();
 fill(255);
 
-textSize(28);
-text("Protect your bees and honey from hungry invaders!", width / 2, 215);
+textSize(24);
+text(
+"Protect your hive from hungry invaders.",
+width/2,
+175
+);
 
-// Start button
-fill(255, 200, 0);
+// Start panel
+fill(255,245);
 stroke(0);
 strokeWeight(3);
-rect(width/2 - 150, height/2 + 40, 300, 70, 20);
 
-fill(0);
+rect(width/2-260,230,520,170,20);
+
 noStroke();
+fill(40);
 
-textSize(34);
-text("PRESS SPACE TO START", width/2, height/2 + 75);
+textSize(26);
+text(
+"Press SPACE to begin your adventure!",
+width/2,
+275
+);
 
-return;
-}
-if (gameOver) {
+textSize(20);
 
-background(0);
-
-fill(255);
-textAlign(CENTER, CENTER);
-
-textSize(60);
-fill(0,120);
-text("GAME OVER", width/2+4, height/2+4);
-
-fill(255);
-text("GAME OVER", width/2, height/2);
-
-textSize(30);
-text("Press SPACE to restart", width/2, height/2 + 80);
+text(
+"Click bears and birds to scare\n"
++"them away before they damage\n"
++"your beehive.",
+width/2,
+340
+);
 
 return;
+
 }
 
 updateDifficulty();
@@ -291,30 +296,53 @@ drawMiniHiveHealthBar();
 drawBees();
 
 // Intro message
-if (introTimer > 0) {
+if (introTimer > 0){
 
-fill(0, 0, 0, 170);
+fill(0,170);
 noStroke();
-rect(width/2 - 290, height/2 - 180, 580, 300, 20);
+
+rect(
+width/2-300,
+height/2-180,
+600,
+300,
+20
+);
 
 fill(255);
 
-textAlign(CENTER, CENTER);
+textAlign(CENTER,CENTER);
 
-textSize(40);
-text("Welcome to Defend the Hive!", width/2, height/2 - 130);
+textSize(34);
+
+text(
+"HOW TO PLAY",
+width/2,
+height/2-130
+);
+
+textSize(22);
+
+text(
+"Protect your hive from bears and birds.\n\n"
++
+"Click enemies to scare them away.\n\n"
++
+"Survive as long as possible to earn points.\n\n"
++
+"Each round makes enemies faster.",
+width/2,
+height/2-5
+);
+
+fill(255,210,0);
 
 textSize(24);
 
 text(
-"Your hive is under attack!\n\n" +
-"Click on bears and birds\n" +
-"to scare them away before\n" +
-"they damage your hive.\n\n" +
-"Every second you survive earns points.\n\n" +
 "CLICK ENEMIES TO SEND THEM AWAY!",
 width/2,
-height/2 + 10
+height/2+105
 );
 
 introTimer--;
@@ -397,15 +425,72 @@ function drawClouds() {
   }
 }
 
+function drawStartBees(){
+
+drawBee(170,140,1);
+drawBee(width-250,220,0.8);
+
+}
+
+function drawBee(x,y,s){
+
+push();
+
+translate(x,y);
+
+scale(s);
+
+stroke(0);
+strokeWeight(2);
+
+// wings
+fill(230);
+
+ellipse(-10,-12,18,28);
+ellipse(10,-12,18,28);
+
+// body
+fill(255,210,0);
+
+ellipse(0,0,38,26);
+
+strokeWeight(3);
+
+line(-8,-12,-8,12);
+line(0,-13,0,13);
+line(8,-12,8,12);
+
+// head
+fill(0);
+
+circle(-20,0,12);
+
+// eye
+fill(255);
+
+circle(-22,-2,3);
+
+pop();
+
+}
+
 function drawGrassTexture() {
-  let groundY = height * 0.75;
+let groundY = height * 0.75;
 
-  stroke(25, 110, 25);
-  strokeWeight(2);
+stroke(30,120,30);
+strokeWeight(2);
 
-  for (let blade of grassBlades) {
-    line(blade.x, groundY, blade.x + blade.offsetX, groundY - blade.height);
-  }
+for (let blade of grassBlades){
+
+let sway = sin(frameCount * 0.05 + blade.x * 0.08) * 5;
+
+line(
+blade.x,
+groundY,
+blade.x + blade.offsetX + sway,
+groundY - blade.height
+);
+
 }
 
 function drawBees() {
@@ -719,8 +804,8 @@ else
 
 function drawHiveHealthBar() {
 
-  let barWidth = 300;
-  let barHeight = 25;
+  let barWidth = 420;
+  let barHeight = 34;
 
   let x = width / 2 - barWidth / 2;
   let y = 20;
@@ -728,16 +813,17 @@ function drawHiveHealthBar() {
   // Background
   fill(40,40,40,180);
   noStroke();
-  rect(x, y, barWidth, barHeight);
+rect(x,y,barWidth,barHeight,16);
 
   // Health
   fill(0, 200, 0);
   rect(
-    x,
-    y,
-    barWidth * (hiveHealth / MAX_HIVE_HEALTH),
-    barHeight
-  );
+x,
+y,
+barWidth*(hiveHealth/MAX_HIVE_HEALTH),
+barHeight,
+16
+);
 
   // Border
   noFill();
@@ -749,7 +835,7 @@ function drawHiveHealthBar() {
   noStroke();
   fill(255);
   textAlign(CENTER, CENTER);
-  textSize(16);
+  textSize(20);
   text(
     "Beehive Health: " + hiveHealth + " / " + MAX_HIVE_HEALTH,
     width / 2,
@@ -811,10 +897,10 @@ stroke(255);
 strokeWeight(2);
 
 // Round box
-rect(20, 15, 160, 45, 10);
+rect(20,15,170,50,12);
 
 // Score box
-rect(200, 15, 180, 45, 10);
+rect(205,15,190,50,12);
 
 // Health bar stays centered
 
@@ -823,7 +909,7 @@ noStroke();
 
 textAlign(CENTER, CENTER);
 
-textSize(22);
+textSize(21);
 
 text(
 "Round " + (scoreLevel + 1),
