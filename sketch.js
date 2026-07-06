@@ -302,10 +302,10 @@ fill(0,170);
 noStroke();
 
 rect(
-width/2-300,
-height/2-180,
-600,
-300,
+width/2-340,
+height/2-240,
+680,
+340,
 20
 );
 
@@ -318,7 +318,7 @@ textSize(34);
 text(
 "HOW TO PLAY",
 width/2,
-height/2-130
+height/2-185
 );
 
 textSize(22);
@@ -332,7 +332,7 @@ text(
 +
 "Each round makes enemies faster.",
 width/2,
-height/2-5
+height/2-40
 );
 
 fill(255,210,0);
@@ -342,7 +342,7 @@ textSize(24);
 text(
 "CLICK ENEMIES TO SEND THEM AWAY!",
 width/2,
-height/2+105
+height/2+65
 );
 
 introTimer--;
