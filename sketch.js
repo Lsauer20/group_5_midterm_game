@@ -236,7 +236,7 @@ if (gameOver) {
 }
 
 updateDifficulty();
-if (score >= 200 && millis() > nextBearSpawn) {
+if (introTimer <= 0 && millis() > nextBearSpawn) {
 
   let direction = random() < 0.5 ? 1 : -1;
 
@@ -261,7 +261,7 @@ bearSpawnDelay
 );
 }
 
-if (score >= 600 && millis() > nextBirdSpawn) {
+if (introTimer <= 0 && millis() > nextBirdSpawn) {
 
   birds.push({
     x: random(0, width),
@@ -844,7 +844,7 @@ if (!bird.leaving) {
 
 function drawHiveHealthBar() {
 
-  let barWidth = 420;
+  let barWidth = 320;
   let barHeight = 34;
 
   let x = width / 2 - barWidth / 2;
@@ -920,36 +920,33 @@ function updateScore() {
 
 function drawTopUI() {
 
-fill(40, 40, 40, 180);
-stroke(255);
-strokeWeight(2);
+  fill(40,40,40,180);
+  stroke(255);
+  strokeWeight(2);
 
-// Round box
-rect(20,15,170,50,12);
+  // Round
+  rect(25,20,140,42,12);
 
-// Score box
-rect(205,15,190,50,12);
+  // Score
+  rect(width-185,20,160,42,12);
 
-// Health bar stays centered
+  noStroke();
+  fill(255);
 
-fill(255);
-noStroke();
+  textAlign(CENTER,CENTER);
+  textSize(18);
 
-textAlign(CENTER, CENTER);
+  text(
+    "Round " + (scoreLevel + 1),
+    95,
+    41
+  );
 
-textSize(21);
-
-text(
-"Round " + (scoreLevel + 1),
-100,
-38
-);
-
-text(
-"Score: " + score,
-290,
-38
-);
+  text(
+    "Score " + score,
+    width-105,
+    41
+  );
 
 }
 
