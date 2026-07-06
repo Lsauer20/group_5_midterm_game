@@ -844,8 +844,8 @@ if (!bird.leaving) {
 
 function drawHiveHealthBar() {
 
-  let barWidth = 320;
-  let barHeight = 34;
+  let barWidth = 260;
+  let barHeight = 28;
 
   let x = width / 2 - barWidth / 2;
   let y = 20;
@@ -920,34 +920,33 @@ function updateScore() {
 
 function drawTopUI() {
 
-  fill(40,40,40,180);
+  fill(40, 40, 40, 180);
   stroke(255);
   strokeWeight(2);
 
-  // Round
-  rect(25,20,140,42,12);
+  // Round box
+  rect(20, 18, 125, 40, 10);
 
-  // Score
-  rect(width-185,20,160,42,12);
+  // Score box
+  rect(155, 18, 145, 40, 10);
 
   noStroke();
   fill(255);
 
-  textAlign(CENTER,CENTER);
-  textSize(18);
+  textAlign(CENTER, CENTER);
+  textSize(17);
 
   text(
     "Round " + (scoreLevel + 1),
-    95,
-    41
+    20 + 125 / 2,
+    18 + 40 / 2
   );
 
   text(
     "Score " + score,
-    width-105,
-    41
+    155 + 145 / 2,
+    18 + 40 / 2
   );
-
 }
 
 function drawPauseButton() {
