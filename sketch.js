@@ -8,6 +8,8 @@ let pauseButton = {
 };
 let beehive;
 let beeImage;
+let round = 1;
+let speedLevel = 0;
 let clouds = [];
 let grassBlades = [];
 let bees = [];
@@ -42,6 +44,7 @@ let bearY;
 // Score
 let score = 0;
 let highScore = 0;
+let honey = 0;
 let lastScoreTime = 0;
 
 let bearFrame = 0;
@@ -58,6 +61,19 @@ let bearAttacking = false;
 const MAX_HIVE_HEALTH = 100;
 
 let bears = [];
+let turretOwned = false;
+let turretLevel = 0;
+
+let beeSwarmOwned = false;
+
+let hiveUpgradeCost = 1000;
+let turretCost = 7500;
+let beeSwarmCost = 5000;
+let turretCooldown = 2000;
+let lastTurretShot = 0;
+
+let beeSwarmCooldown = 30000;
+let lastBeeSwarm = -30000;
 
 let minSpawnTime = 7000;
 let maxSpawnTime = 15000;
@@ -70,10 +86,10 @@ let lastBearAttack = 0;
 let shopOpen = false;
 
 let shopButton = {
-  x: 20,
-  y: height - 70,
-  w: 180,
-  h: 50
+    x: 20,
+    y: 0,
+    w: 180,
+    h: 50
 };
 
 
@@ -97,6 +113,7 @@ pauseButton.y = 15;
   bearY = height * 0.75 - 20;
   nextBearSpawn = millis() + random(10000, 20000);
   nextBirdSpawn = millis() + 30000; // first bird after 30 sec
+  shopButton.y = height - 70;
 
   // Create grass blades
   for (let x = 0; x < width; x += 5) {
@@ -248,6 +265,25 @@ if (gameOver) {
   return;
 }
 
+if (roundComplete) {
+
+  background(35,60,90);
+
+  fill(255);
+  textAlign(CENTER,CENTER);
+
+  textSize(60);
+  text("ROUND COMPLETE!", width/2, height/2-120);
+
+  textSize(30);
+  text("Great job defending the hive!", width/2, height/2-40);
+
+  textSize(24);
+  text("Press ENTER to begin Round " + (round+1), width/2, height/2+70);
+
+  return;
+}
+
 updateDifficulty();
 if (introTimer <= 0 && millis() > nextBearSpawn) {
 
@@ -275,7 +311,8 @@ bearSpawnDelay
 }
 
 if (score >= roundTarget) {
-  roundComplete = true;
+    roundComplete = true;
+    return;
 }
 
 if (introTimer <= 0 && millis() > nextBirdSpawn) {
@@ -312,6 +349,8 @@ birdSpawnDelay
   updateScore();
 drawTopUI();
 drawPauseButton(); 
+drawShopButton();
+drawHoneyUI();
 drawHiveHealthBar();
 
   // Clouds
@@ -434,6 +473,9 @@ if (paused) {
   textSize(80);
   text("PAUSED", width / 2, height / 2);
 }
+if (shopOpen) {
+    drawShop();
+}
 }
 
 function drawClouds() {
@@ -519,6 +561,22 @@ fill(255);
 circle(-22,-2,3);
 
 pop();
+
+}
+
+function drawShop() {
+
+    fill(30,30,30,240);
+    noStroke();
+
+    rect(width - 420, 0, 420, height);
+
+    fill(255);
+
+    textAlign(CENTER,CENTER);
+    textSize(34);
+
+    text("UPGRADES", width - 210, 50);
 
 }
 
@@ -793,6 +851,49 @@ let col = bird.frame % 8;
 
 }
 
+function drawShopButton() {
+
+  fill(255,190,40);
+  stroke(255);
+  strokeWeight(2);
+
+  rect(shopButton.x, shopButton.y, shopButton.w, shopButton.h, 12);
+
+  noStroke();
+  fill(40);
+
+  textAlign(CENTER,CENTER);
+  textSize(20);
+
+  text(
+    "UPGRADES",
+    shopButton.x + shopButton.w/2,
+    shopButton.y + shopButton.h/2
+  );
+function drawHoneyUI() {
+
+    fill(40,40,40,180);
+    stroke(255);
+    strokeWeight(2);
+
+    rect(220, height - 70, 170, 50, 12);
+
+    noStroke();
+    fill(255,220,0);
+
+    textAlign(CENTER,CENTER);
+    textSize(20);
+
+    text(
+        "🍯 " + honey,
+        220 + 85,
+        height - 45
+    );
+
+}
+}
+
+
 function mousePressed() {
 
 
@@ -813,6 +914,23 @@ if (paused) {
 
 return;
 }
+if (
+    mouseX > shopButton.x &&
+    mouseX < shopButton.x + shopButton.w &&
+    mouseY > shopButton.y &&
+    mouseY < shopButton.y + shopButton.h
+) {
+
+    shopOpen = !shopOpen;
+
+    if (shopOpen) {
+        noLoop();
+    } else {
+        loop();
+    }
+
+    return;
+}
   // Bears
   for (let bear of bears) {
 
@@ -827,6 +945,7 @@ return;
   bear.leaving = true;
   bear.facing *= -1;
   score += 100;
+honey += 100;
 }
 
     }
@@ -845,7 +964,8 @@ return;
 if (!bird.leaving) {
 
   bird.leaving = true;
-  score += 150;
+ score += 150;
+honey += 150;
 
   if (bird.x < width/2)
     bird.facing = -1;
@@ -1020,6 +1140,7 @@ function keyPressed() {
   else if (gameOver && key === ' ') {
 
     score = 0;
+honey = 0;
     hiveHealth = 100;
 
     bears = [];
@@ -1037,23 +1158,4 @@ function keyPressed() {
 
   }
 
-}
-
-if (roundComplete) {
-
-  background(35,60,90);
-
-  fill(255);
-  textAlign(CENTER,CENTER);
-
-  textSize(60);
-  text("ROUND COMPLETE!", width/2, height/2-120);
-
-  textSize(30);
-  text("Great job defending the hive!", width/2, height/2-40);
-
-  textSize(24);
-  text("Press ENTER to begin Round " + (round+1), width/2, height/2+70);
-
-  return;
 }
