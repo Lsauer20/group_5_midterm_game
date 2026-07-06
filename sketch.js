@@ -852,7 +852,6 @@ let col = bird.frame % 8;
 }
 
 function drawShopButton() {
-
   fill(255,190,40);
   stroke(255);
   strokeWeight(2);
@@ -870,27 +869,26 @@ function drawShopButton() {
     shopButton.x + shopButton.w/2,
     shopButton.y + shopButton.h/2
   );
+}
 function drawHoneyUI() {
 
-    fill(40,40,40,180);
-    stroke(255);
-    strokeWeight(2);
+  fill(40,40,40,180);
+  stroke(255);
+  strokeWeight(2);
 
-    rect(220, height - 70, 170, 50, 12);
+  rect(220, height - 70, 170, 50, 12);
 
-    noStroke();
-    fill(255,220,0);
+  noStroke();
+  fill(255,220,0);
 
-    textAlign(CENTER,CENTER);
-    textSize(20);
+  textAlign(CENTER,CENTER);
+  textSize(20);
 
-    text(
-        "🍯 " + honey,
-        220 + 85,
-        height - 45
-    );
-
-}
+  text(
+    "🍯 " + honey,
+    220 + 85,
+    height - 45
+  );
 }
 
 
@@ -922,12 +920,6 @@ if (
 ) {
 
     shopOpen = !shopOpen;
-
-    if (shopOpen) {
-        noLoop();
-    } else {
-        loop();
-    }
 
     return;
 }
