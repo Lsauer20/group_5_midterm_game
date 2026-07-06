@@ -492,6 +492,7 @@ groundY - blade.height
 );
 
 }
+}
 
 function drawBees() {
   let hiveX = width / 2;
@@ -826,10 +827,10 @@ barHeight,
 );
 
   // Border
-  noFill();
-  stroke(255);
-  strokeWeight(2);
-  rect(x, y, barWidth, barHeight);
+noFill();
+stroke(255);
+strokeWeight(2);
+rect(x, y, barWidth, barHeight, 16);
 
   // Text
   noStroke();
