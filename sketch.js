@@ -58,7 +58,7 @@ let bearFacing = 1;
 // Hive health
 let hiveHealth = 100;
 let bearAttacking = false;
-const MAX_HIVE_HEALTH = 100;
+let MAX_HIVE_HEALTH = 100;
 
 let bears = [];
 let turretOwned = false;
@@ -566,18 +566,49 @@ pop();
 
 function drawShop() {
 
-    fill(30,30,30,240);
-    noStroke();
+  fill(0, 0, 0, 180);
+  rect(0, 0, width, height);
 
-    rect(width - 420, 0, 420, height);
+  fill(35);
+  stroke(255);
+  strokeWeight(3);
 
-    fill(255);
+  rect(width - 430, 0, 430, height);
 
-    textAlign(CENTER,CENTER);
-    textSize(34);
+  noStroke();
+  fill(255);
 
-    text("UPGRADES", width - 210, 50);
+  textAlign(CENTER, CENTER);
+  textSize(34);
 
+  text("UPGRADES", width - 215, 45);
+  fill(255,190,40);
+
+rect(width-390,100,350,60,12);
+rect(width-390,190,350,60,12);
+rect(width-390,280,350,60,12);
+
+fill(30);
+
+textSize(20);
+
+text(
+"Hive Upgrade\n🍯 " + hiveUpgradeCost,
+width-215,
+130
+);
+
+text(
+"Bee Swarm\n🍯 " + beeSwarmCost,
+width-215,
+220
+);
+
+text(
+"Honey Turret\n🍯 " + turretCost,
+width-215,
+310
+);
 }
 
 function drawGrassTexture() {
@@ -876,7 +907,7 @@ function drawHoneyUI() {
   stroke(255);
   strokeWeight(2);
 
-  rect(220, height - 70, 170, 50, 12);
+ rect(210, height - 70, 170, 50, 12);
 
   noStroke();
   fill(255,220,0);
@@ -884,11 +915,11 @@ function drawHoneyUI() {
   textAlign(CENTER,CENTER);
   textSize(20);
 
-  text(
-    "🍯 " + honey,
-    220 + 85,
-    height - 45
-  );
+text(
+"🍯 " + honey,
+295,
+height - 45
+);
 }
 
 
@@ -919,9 +950,16 @@ if (
     mouseY < shopButton.y + shopButton.h
 ) {
 
-    shopOpen = !shopOpen;
+shopOpen = !shopOpen;
 
-    return;
+if (shopOpen) {
+  redraw();
+  noLoop();
+} else {
+  loop();
+}
+
+return;
 }
   // Bears
   for (let bear of bears) {
