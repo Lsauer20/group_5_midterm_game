@@ -38,6 +38,7 @@ let bearX;
 let bearY;
 // Score
 let score = 0;
+let highScore = 0;
 let lastScoreTime = 0;
 
 let bearFrame = 0;
@@ -121,7 +122,7 @@ pauseButton.y = 15;
 
 function updateDifficulty() {
 
-scoreLevel = floor(score / 5000);
+scoreLevel = floor(score / 1000);
 if (scoreLevel > previousLevel) {
   fasterTimer = 120; // 3 seconds
   previousLevel = scoreLevel;
@@ -207,6 +208,31 @@ width/2,
 
 return;
 
+}
+
+if (gameOver) {
+
+  background(25);
+
+  fill(255, 70, 70);
+  textAlign(CENTER, CENTER);
+
+  textSize(72);
+  text("GAME OVER", width/2, height/2 - 120);
+
+  fill(255);
+
+  textSize(34);
+  text("Final Score: " + score, width/2, height/2 - 30);
+
+  textSize(30);
+  text("High Score: " + highScore, width/2, height/2 + 20);
+
+  fill(255,220,0);
+  textSize(26);
+  text("Press SPACE to Play Again", width/2, height/2 + 110);
+
+  return;
 }
 
 updateDifficulty();
@@ -328,7 +354,7 @@ text(
 +
 "Click enemies to scare them away.\n"
 +
-"Survive as long as possible to earn points.\n"
+"Click enemies to earn points.\n"
 +
 "Each round makes enemies faster.",
 width/2,
@@ -367,8 +393,13 @@ text("Enemies are speeding up", width/2, height/2 + 80);
   fasterTimer--;
 
 }
-  if (hiveHealth <= 0) {
-gameOver = true;
+ if (hiveHealth <= 0) {
+
+  if (score > highScore) {
+    highScore = score;
+  }
+
+  gameOver = true;
 }
 drawTopUI();
 drawPauseButton();
@@ -775,8 +806,11 @@ return;
       mouseY < bear.y + FRAME_HEIGHT / 2
     ) {
 
-      bear.leaving = true;
-      bear.facing *= -1;
+     if (!bear.leaving) {
+  bear.leaving = true;
+  bear.facing *= -1;
+  score += 100;
+}
 
     }
   }
@@ -791,12 +825,17 @@ return;
       mouseY < bird.y + 60
     ) {
 
-    bird.leaving = true;
+if (!bird.leaving) {
 
-if (bird.x < width/2)
+  bird.leaving = true;
+  score += 150;
+
+  if (bird.x < width/2)
     bird.facing = -1;
-else
+  else
     bird.facing = 1;
+
+}
 
     }
   }
@@ -875,19 +914,7 @@ function drawMiniHiveHealthBar() {
 }
 
 function updateScore() {
-
-  // Gain 100 points every second unless a bear is attacking
-  if (!bearAttacking) {
-
-    if (millis() - lastScoreTime >= 1000) {
-
-      score += 100;
-      lastScoreTime = millis();
-
-    }
-
-  }
-
+  // Score is now earned by clicking enemies.
 }
 
 
