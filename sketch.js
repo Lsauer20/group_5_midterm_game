@@ -342,7 +342,7 @@ textSize(24);
 text(
 "CLICK ENEMIES TO SEND THEM AWAY!",
 width/2,
-height/2+105
+height/2+65
 );
 
 introTimer--;
